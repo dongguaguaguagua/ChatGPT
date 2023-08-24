@@ -6,9 +6,9 @@ export const config = {
 };
 
 export default async function POST(req: NextRequest) {
-  let bugSolver = "";
   if (req.method !== "POST")
     return new Response(null, { status: 404, statusText: "Not Found" });
+  let bugSolver = "";
   function dataParser(data: string): any {
     bugSolver = "";
     data = data.trim();

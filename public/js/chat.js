@@ -345,7 +345,7 @@ async function editStreamBox(messages, content, istitile = false) {
       }
     })
     //获取UTF8的解码
-    const encode = new TextDecoder("utf-8");
+    const decoder = new TextDecoder("utf-8");
     //获取body的reader
     const reader = response.body.getReader();
     // 循环读取reponse中的内容
@@ -359,7 +359,7 @@ async function editStreamBox(messages, content, istitile = false) {
         break;
       }
       // 解码内容
-      const text = encode.decode(value);
+      const text = decoder.decode(value);
       // 当获取错误token时，输出错误信息
       if (text === "<ERR>") {
         // console.log("Error.", text);
