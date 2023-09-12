@@ -101,7 +101,17 @@ export default async function POST(req: NextRequest) {
       },
     });
 
-    return new Response(stream);
+    return new Response(stream, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache, no-transform',
+        'X-Accel-Buffering': 'no',
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive',
+        'Transfer-Encoding': 'chunked',
+        'Content-Encoding': 'none',
+      }
+    });
   }
   catch (error) {
     console.error('Network Error:', error);

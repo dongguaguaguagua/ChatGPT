@@ -49,25 +49,10 @@
     <div class="mdl-layout__drawer">
       <span class="mdl-layout-title">GPT3.5-Turbo</span>
       <nav class="mdl-navigation">
-        <a class="mdl-navigation__link" href="<?php echo indexPage;?>">
-          <span class="material-icons">home</span>首页
+        <a class="mdl-navigation__link" id="create-new-conversation">
+          <span class="material-icons">add_circle</span>新建对话
         </a>
-        <a class="mdl-navigation__link" href="<?php echo moviePage;?>">
-          <span class="material-icons">movie</span>电影
-        </a>
-        <a class="mdl-navigation__link" href="<?php echo serialPage;?>">
-          <span class="material-icons">live_tv</span>电视剧
-        </a>
-        <a class="mdl-navigation__link" href="<?php echo varietyShowPage;?>">
-          <span class="material-icons">sports_martial_arts</span>综艺
-        </a>
-        <a class="mdl-navigation__link" href="<?php echo booksPage;?>">
-          <span class="material-icons">auto_stories</span>书籍
-        </a>
-        <a class="mdl-navigation__link" href="<?php echo gptPage;?>">
-          <span class="material-icons">chat</span>chat
-        </a>
-        <a class="mdl-navigation__link" href="https://github.com/dongguaguaguagua/getenjoyment">
+        <a class="mdl-navigation__link" href="https://github.com/dongguaguaguagua/fy_gpt">
           <!-- 20-(24-17)=13 -->
           <svg viewBox="0 0 24 24" width="17" height="17" style="font-size: small;padding-right: 19px;">
             <path fill="#878787"
@@ -154,6 +139,10 @@
       </div>
     </main>
   </div>
+  <div id="show-snackbar-example" class="mdl-js-snackbar mdl-snackbar" style="z-index: 999;">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
 </body>
 <!-- markdown-it -->
 <script src="js/markdown-it.min.js"></script>
@@ -169,5 +158,23 @@
 <script src="js/chat.js"></script>
 <!-- settings -->
 <script src="js/settings.js"></script>
+<script>
+  (function() {
+    'use strict';
+    var snackbarContainer = document.querySelector('#show-snackbar-example');
+    var showSnackbarButton = document.querySelector('#create-new-conversation');
+    var handler = function(event) {};
+    showSnackbarButton.addEventListener('click', function() {
+      'use strict';
+      var data = {
+        message: '抱歉！该功能仍在开发中。',
+        timeout: 2000,
+        actionHandler: handler,
+        actionText: 'OK'
+      };
+      snackbarContainer.MaterialSnackbar.showSnackbar(data);
+    });
+  }());
+</script>
 
 </html>

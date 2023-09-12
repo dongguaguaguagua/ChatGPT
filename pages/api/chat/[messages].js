@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Transfer-Encoding", "chunked");
   res.setHeader("Content-Encoding", "none");
@@ -10,8 +10,6 @@ export default async function handler(req, res) {
   try {
     // const value posting to openai.
     const { messages } = req.query;
-    console.log(messages);
-    console.log(JSON.parse(messages));
     const model = "gpt-3.5-turbo";
     const apikey = process.env.OPENAI_API_KEY;
     const top_p = 0.9;
@@ -62,7 +60,6 @@ export default async function handler(req, res) {
     console.log("start streaming...");
     for await (let value of response.body) {
       value = bugSolver + decoder.decode(value);
-      console.log("value:", value);
       value.split("data: ").forEach(item => {
         const event = dataParser(item);
         if (event !== "[PASS]" && event !== "[BROKEN]") {
