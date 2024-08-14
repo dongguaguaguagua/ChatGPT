@@ -6,22 +6,26 @@ export const config = {
 };
 
 export default async function POST(req: NextRequest) {
-  if (req.method !== "POST") {
+  if (req.method === "OPTIONS") {
     return NextResponse.json(
+      {},
       {
-        error: {
-          code: 405,
-          message: "Method Not Allowed",
-        },
-      },
-      {
-        status: 405,
+        status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Cache-Control": "no-cache",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
         },
       },
     );
+  }
+  if (req.method !== "POST") {
+    return NextResponse.json({
+      error: {
+        code: 405,
+        message: "Method Not Allowed",
+      },
+    });
   }
   let bugSolver = "";
   function dataParser(data: string): any {
@@ -147,7 +151,6 @@ export default async function POST(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Cache-Control": "no-cache, no-transform",
         "X-Accel-Buffering": "no",
         "Content-Type": "text/event-stream",
