@@ -1,13 +1,25 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export const config = {
-  runtime: 'edge',
+  runtime: "edge",
 };
 
 export default async function POST(req: NextRequest) {
-  if (req.method !== "POST")
-    return new Response(null, { status: 404, statusText: "Not Found" });
+  if (req.method !== "POST") {
+    return NextResponse.json({
+      error: {
+        code: 405,
+        message: "Method Not Allowed",
+      },
+    }, {
+      status: 405,
+      {
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache',
+      }
+    });
+  }
   let bugSolver = "";
   function dataParser(data: string): any {
     bugSolver = "";
@@ -26,19 +38,39 @@ export default async function POST(req: NextRequest) {
   try {
     const json = await req.json();
     let {
-      model, messages, apikey, temperature, top_p,
-      frequency_penalty, presence_penalty, max_tokens
+      model,
+      messages,
+      apikey,
+      temperature,
+      top_p,
+      frequency_penalty,
+      presence_penalty,
+      max_tokens,
     } = json;
 
-    if (!model || model === null) { model = "gpt-3.5-turbo"; }
-    if (!apikey || apikey === null || apikey.length == 0) { apikey = process.env.OPENAI_API_KEY; }
-    if (!top_p || top_p === null) { top_p = 0.9; }
-    if (!presence_penalty || presence_penalty === null) { presence_penalty = 0; }
-    if (!frequency_penalty || frequency_penalty === null) { frequency_penalty = 0; }
-    if (!max_tokens || max_tokens === null) { max_tokens = 2000; }
-    if (!temperature || temperature === null) { temperature = 0.4; }
+    if (!model || model === null) {
+      model = "gpt-4o-mini";
+    }
+    if (!apikey || apikey === null || apikey.length == 0) {
+      apikey = process.env.OPENAI_API_KEY;
+    }
+    if (!top_p || top_p === null) {
+      top_p = 0.9;
+    }
+    if (!presence_penalty || presence_penalty === null) {
+      presence_penalty = 0;
+    }
+    if (!frequency_penalty || frequency_penalty === null) {
+      frequency_penalty = 0;
+    }
+    if (!max_tokens || max_tokens === null) {
+      max_tokens = 2000;
+    }
+    if (!temperature || temperature === null) {
+      temperature = 0.4;
+    }
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // 等待0.5秒钟
+    await new Promise((resolve) => setTimeout(resolve, 500)); // 等待0.5秒钟
 
     console.log("fetching resp...");
 
@@ -48,7 +80,7 @@ export default async function POST(req: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${apikey}`
+          Authorization: `Bearer ${apikey}`,
         },
         body: JSON.stringify({
           model: model,
@@ -61,7 +93,7 @@ export default async function POST(req: NextRequest) {
           stream: true,
           n: 1,
         }),
-      }
+      },
     );
 
     console.log("start streaming...");
@@ -75,27 +107,36 @@ export default async function POST(req: NextRequest) {
           for await (const chunk of fetchResult.body as any as IterableIterator<Uint8Array>) {
             let value = bugSolver + decoder.decode(chunk);
             // console.log(value);
-            value.split("data: ").forEach(item => {
+            value.split("data: ").forEach((item) => {
               const event = dataParser(item);
               if (event !== "[PASS]" && event !== "[BROKEN]") {
-                if ('error' in event) { // 报错
+                if ("error" in event) {
+                  // 报错
                   controller.enqueue(encoder.encode("\n```json\n"));
-                  controller.enqueue(encoder.encode(JSON.stringify(event, undefined, 2)));
+                  controller.enqueue(
+                    encoder.encode(JSON.stringify(event, undefined, 2)),
+                  );
                   controller.enqueue(encoder.encode("\n```"));
                   controller.close();
                 } else if (event.choices[0].finish_reason === "stop") {
                   controller.close();
                 } else {
-                  controller.enqueue(encoder.encode(event.choices[0].delta?.content));
+                  controller.enqueue(
+                    encoder.encode(event.choices[0].delta?.content),
+                  );
                 }
               }
             });
           }
         } catch (error) {
           controller.enqueue(encoder.encode("\n```json\n"));
-          controller.enqueue(encoder.encode(`TypeError: NetworkError while fetching data stream: ${error}`));
+          controller.enqueue(
+            encoder.encode(
+              `TypeError: NetworkError while fetching data stream: ${error}`,
+            ),
+          );
           controller.enqueue(encoder.encode("\n```"));
-          console.error('Network Error:', error);
+          console.error("Network Error:", error);
           controller.close();
         }
       },
@@ -103,25 +144,22 @@ export default async function POST(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-cache, no-transform',
-        'X-Accel-Buffering': 'no',
-        'Content-Type': 'text/event-stream',
-        'Connection': 'keep-alive',
-        'Transfer-Encoding': 'chunked',
-        'Content-Encoding': 'none',
-      }
-    });
-  }
-  catch (error) {
-    console.error('Network Error:', error);
-    return NextResponse.json(
-      {
-        error: {
-          code: 401,
-          message: "Network error when fetching resource!"
-        },
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no",
+        "Content-Type": "text/event-stream",
+        Connection: "keep-alive",
+        "Transfer-Encoding": "chunked",
+        "Content-Encoding": "none",
       },
-    );
+    });
+  } catch (error) {
+    console.error("Network Error:", error);
+    return NextResponse.json({
+      error: {
+        code: 401,
+        message: "Network error when fetching resource!",
+      },
+    });
   }
 }
