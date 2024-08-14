@@ -7,18 +7,21 @@ export const config = {
 
 export default async function POST(req: NextRequest) {
   if (req.method !== "POST") {
-    return NextResponse.json({
-      error: {
-        code: 405,
-        message: "Method Not Allowed",
-      },
-    }, {
-      status: 405,
+    return NextResponse.json(
       {
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-cache',
-      }
-    });
+        error: {
+          code: 405,
+          message: "Method Not Allowed",
+        },
+      },
+      {
+        status: 405,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Cache-Control": "no-cache",
+        },
+      },
+    );
   }
   let bugSolver = "";
   function dataParser(data: string): any {
