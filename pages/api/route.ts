@@ -151,6 +151,9 @@ export default async function POST(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type",
         "Cache-Control": "no-cache, no-transform",
         "X-Accel-Buffering": "no",
         "Content-Type": "text/event-stream",
